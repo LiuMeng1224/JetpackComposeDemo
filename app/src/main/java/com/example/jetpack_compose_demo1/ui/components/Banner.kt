@@ -1,11 +1,11 @@
-package com.example.jetpack_compose_demo1.ui.compose
+package com.example.jetpack_compose_demo1.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,18 +37,17 @@ import kotlinx.coroutines.delay
  */
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun Banner(images: MutableList<String>, modifier: Modifier = Modifier) {
+fun Banner(images: List<String>, modifier: Modifier = Modifier) {
     val pageCount = images.size
-    val loopingCount = Int.MAX_VALUE
-    val startIndex = loopingCount / 2
+    val startIndex = 0
     val pagerState = rememberPagerState(initialPage = startIndex)
 
     // 页码转换
-    fun pageMapper(index: Int) = (index - startIndex).floorMod(pageCount)
+    fun pageMapper(index: Int) = index % images.size
 
     Box(modifier = modifier) {
         HorizontalPager(
-            count = loopingCount, state = pagerState,
+            count = pageCount, state = pagerState,
             modifier = Modifier.matchParentSize()
         ) { index ->
             // 计算页面下标
@@ -94,12 +93,9 @@ fun Banner(images: MutableList<String>, modifier: Modifier = Modifier) {
                     while (true) {
                         delay(1000L)
                         val current = pagerState.currentPage
-                        val currentPos = pageMapper(current)
                         val nextPage = current + 1
+                        val toPage = pageMapper(nextPage)
                         if (underDragging.not()) {
-                            val toPage =
-                                nextPage.takeIf { nextPage < pagerState.pageCount }
-                                    ?: (currentPos + startIndex + 1)
                             if (toPage > current) {
                                 pagerState.animateScrollToPage(toPage)
                             } else {
@@ -108,6 +104,7 @@ fun Banner(images: MutableList<String>, modifier: Modifier = Modifier) {
                         }
                     }
                 } catch (e: CancellationException) {
+                    Log.e("HorizontalPagerIndicator", "CancellationException == ${e.toString()}")
                 }
             }
         }
@@ -132,10 +129,3 @@ fun BannerItem(imgUrl: String) {
     }
 }
 
-/**
- * 转换下标
- */
-private fun Int.floorMod(other: Int): Int = when (other) {
-    0 -> this
-    else -> this - floorDiv(other) * other
-}

@@ -1,7 +1,8 @@
-package com.example.jetpack_compose_demo1.ui.compose
+package com.example.jetpack_compose_demo1.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.jetpack_compose_demo1.ui.CategoryItem
+import com.example.jetpack_compose_demo1.model.CategoryItem
+import com.example.jetpack_compose_demo1.model.LiveStreaming
 import com.example.jetpack_compose_demo1.ui.theme.black333
 import com.example.jetpack_compose_demo1.ui.theme.green00cc7e
 import com.example.jetpack_compose_demo1.ui.theme.grey999
@@ -44,12 +46,13 @@ import com.example.jetpack_compose_demo1.ui.theme.white
 
 
 @Composable
-fun Recommend(categoryList: MutableList<MutableList<CategoryItem>>) {
-    val bannerImages = mutableListOf<String>()
-    bannerImages.add("https://mooc-image.nosdn.127.net/f9b76cada0c54532a4cebe9e452cd631.png?imageView&quality=100&thumbnail=1552y720")
-    bannerImages.add("https://mooc-image.nosdn.127.net/ef30f3089541433e886c7a4e8a2f2e78.png?imageView&quality=100")
-    bannerImages.add("https://mooc-image.nosdn.127.net/bc7c883eff4c4a37895e364b3daf52a6.jpg?imageView&quality=100&thumbnail=1552y720")
-    bannerImages.add("https://edu-image.nosdn.127.net/a9500e957bca4b3385eaadf2999470d8.png?imageView&quality=100")
+fun Concentration(
+    categoryList: List<CategoryItem>,
+    bannerImages: List<String>,
+    liveStreamingList: List<LiveStreaming>,
+    onNavigateMoreLiveStreaming: () -> Unit,
+    onNavigateLiveStreamingDetail: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,19 +64,20 @@ fun Recommend(categoryList: MutableList<MutableList<CategoryItem>>) {
         Spacer(modifier = Modifier.height(10.dp))
         LatestCourses(bannerImages = bannerImages)
         Spacer(modifier = Modifier.height(10.dp))
-        RecentlyLiveStreamingList()
+        RecentlyLiveStreamingList(liveStreamingList, onNavigateMoreLiveStreaming, onNavigateLiveStreamingDetail)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CourseCategoryGrid(categoryList: MutableList<MutableList<CategoryItem>>) {
-
+fun CourseCategoryGrid(categoryList: List<CategoryItem>) {
+    val verticalGridList =
+        listOf(categoryList.subList(0, 10), categoryList.subList(10, categoryList.size))
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val pagerState = rememberPagerState(pageCount = {
-            categoryList.size
+            verticalGridList.size
         })
         Box(
             modifier = Modifier
@@ -85,15 +89,15 @@ fun CourseCategoryGrid(categoryList: MutableList<MutableList<CategoryItem>>) {
         ) {
             HorizontalPager(state = pagerState) { page ->
                 LazyVerticalGrid(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(10.dp)
-                       .fillMaxHeight(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .fillMaxHeight(),
                     columns = GridCells.Fixed(5),
                     verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    items(categoryList[page]) { category ->
-                        CategoryItem(category)
+                    items(verticalGridList[page]) { categories ->
+                        CategoryItem(categories)
                     }
                 }
             }
@@ -137,7 +141,7 @@ fun CourseCategoryGrid(categoryList: MutableList<MutableList<CategoryItem>>) {
 }
 
 @Composable
-fun CategoryItem(category : CategoryItem) {
+fun CategoryItem(category: CategoryItem) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(
             model = category.categoryImg,
@@ -154,14 +158,16 @@ fun CategoryItem(category : CategoryItem) {
 }
 
 @Composable
-fun LatestCourses(bannerImages: MutableList<String>) {
+fun LatestCourses(bannerImages: List<String>) {
     Row(
         modifier = Modifier
-        .height(115.dp)
+            .height(115.dp)
     ) {
-        Banner(images = bannerImages, modifier = Modifier
-            .weight(2.0f)
-            .height(115.dp))
+        Banner(
+            images = bannerImages, modifier = Modifier
+                .weight(2.0f)
+                .height(115.dp)
+        )
         Spacer(modifier = Modifier.width(16.dp))
         AsyncImage(
             model = "https://edu-image.nosdn.127.net/b37bfbaddb844eadb454fe1975c8760c.png?imageView&quality=100&thumbnail=312y312",
@@ -174,12 +180,11 @@ fun LatestCourses(bannerImages: MutableList<String>) {
 }
 
 @Composable
-fun RecentlyLiveStreamingList() {
-    val liveStreamingList = mutableListOf<LiveStreaming>()
-    liveStreamingList.add(LiveStreaming("25考研计算机全年高分复习规划", "https://mooc-image.nosdn.127.net/2ff9ea0335f043548e84510f6d30dda6.png?imageView&quality=100&thumbnail=312y312", "未开始", "08月15日 19:00-21:00", "研芝士计算机考研"))
-    liveStreamingList.add(LiveStreaming("T121DAY1：专升本招录政策解读暨全流程备考规划", "https://mooc-image.nosdn.127.net/11c3629c7a3544d7b6a87d245a4c49d4.png?imageView&quality=100&thumbnail=96y96", "未开始", "08月15日 19:30-21:30", "哎上课专升本"))
-    liveStreamingList.add(LiveStreaming("上海热门院校难度分析及横向对比(下)", "https://mooc-image.nosdn.127.net/ab8977a7cb414592ad447e71fe3f3f6f.jpg?imageView&quality=100&thumbnail=800y800", "未开始", "08月15日 19:30-21:00", "水木观畴"))
-
+fun RecentlyLiveStreamingList(
+    liveStreamingList: List<LiveStreaming>,
+    onNavigateMoreLiveStreaming: () -> Unit,
+    onNavigateLiveStreamingDetail: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .drawBehind {
@@ -188,11 +193,14 @@ fun RecentlyLiveStreamingList() {
             .padding(start = 10.dp, end = 10.dp, top = 15.dp, bottom = 20.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.clickable {
+                onNavigateMoreLiveStreaming()
+            }
         ) {
             Text(
                 text = "最近直播",
-                style = TextStyle(color = black333, fontSize = 18.sp, fontWeight = FontWeight.Bold ),
+                style = TextStyle(color = black333, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                 modifier = Modifier.weight(1.0f)
             )
             Text(text = "更多", style = TextStyle(color = grey999, fontSize = 14.sp))
@@ -203,7 +211,7 @@ fun RecentlyLiveStreamingList() {
             )
         }
         liveStreamingList.forEach {
-            RecentlyLiveStreaming(it)
+            RecentlyLiveStreaming(it, onNavigateLiveStreamingDetail)
         }
     }
 

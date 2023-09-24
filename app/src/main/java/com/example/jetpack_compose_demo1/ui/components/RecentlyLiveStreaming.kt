@@ -1,13 +1,12 @@
-package com.example.jetpack_compose_demo1.ui.compose
+package com.example.jetpack_compose_demo1.ui.components
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,14 +19,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.jetpack_compose_demo1.model.LiveStreaming
 import com.example.jetpack_compose_demo1.ui.theme.black333
 import com.example.jetpack_compose_demo1.ui.theme.grey999
 import com.example.jetpack_compose_demo1.ui.theme.greyAfc0cc
 import com.example.jetpack_compose_demo1.ui.theme.white
 
 @Composable
-fun RecentlyLiveStreaming(item: LiveStreaming) {
-    Column {
+fun RecentlyLiveStreaming(item: LiveStreaming, onNavigateLiveStreamingDetail: (String) -> Unit) {
+    Column(
+        modifier = Modifier.clickable {
+            onNavigateLiveStreamingDetail(item.name)
+        }
+    ) {
         Spacer(modifier = Modifier.height(15.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
@@ -62,4 +66,3 @@ fun RecentlyLiveStreaming(item: LiveStreaming) {
     }
 }
 
-data class LiveStreaming(val name: String, val image: String, val status: String, val date: String, val lecturer: String)
